@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+
+# Author: Sophie Bernadin-Mercier
+# https://github.com/Shuhala/i3blocks-colorscheme-picker
+#
+# Inspired by i3blocks-shutdown_menu
+# https://github.com/vivien/i3blocks-contrib/blob/master/shutdown_menu/shutdown_menu
+#
+# Requires pywal and rofi
+
+
+## Config
+#
+pywal_options=(-i)
+rofi_title="colorschemes:"
+rofi_colors=(
+	-bc "#222222" \
+	-bg "#111111" \
+	-fg "#bbbbbb" \
+	-hlfg "#111111" \
+	-hlbg "#bbbbbb"
+)
+rofi_options=(
+	-width -30 \
+	-location 3 \
+	-bw 2 \
+	-dmenu -i \
+	-p "${rofi_title}" "${rofi_colors}" \
+	-lines 10
+)
+
+
+## Help
+#
+usage="$(basename "$0") [-h] [-d directory] [-p options (optional)] -- display a menu to change your wallpaper and colorscheme with pywal and rofi:
+    -h  help
+    -d  wallpapers directory
+    -p  override pywal options"
+
+while getopts "hd:p:" option; do
+  case "${option}" in
+    h) echo "${usage}"
+      exit 0
+      ;;
+	d) wallpapers_dir=${OPTARG}
+      ;;
+	p) pywal_options=${OPTARG}
+      ;;
+    *) echo "Invalid option. Use -h for more informations."
+      exit 1
+      ;;
+  esac
+done
+
+if [ -z ${wallpapers_dir+x} ]; then
+  echo "Please, provide a wallpapers directory with -d"
+  exit 1
+fi
+
+
+## Display menu
+#
+typeset -A menu
+for file in $(find $wallpapers_dir -type f -regex '.*\(jpg\|png\)$'); 
+do
+	file_name=${file##*/}
+	menu[${file_name%%.*}]=$file
+done
+
+launch_rofi=(rofi "${rofi_options[@]}")
+selection="$(printf '%s\n' "${!menu[@]}" | sort | "${launch_rofi[@]}")"
+
+
+# Apply selected wallpaper
+#
+if [ ! -z $selection ]; then
+	exec `wal $pywal_options "${menu[${selection}]}"`
+fi
+
