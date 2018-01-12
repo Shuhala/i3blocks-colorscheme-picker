@@ -1,6 +1,9 @@
 # i3blocks-colorscheme-picker
 Script to display a directory images name in a dropdown menu on click with _rufi_ to quickly change the desktop wallpaper and colorscheme with _pywal_.
 
+## Preview
+![demo](https://github.com/Shuhala/i3blocks-colorscheme-picker/blob/master/colorscheme-picker-demo.gif)
+
 ## Requirements
 - i3blocks
 - pywal
